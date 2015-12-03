@@ -48,6 +48,9 @@
             this.PowerStateOnButton = new System.Windows.Forms.Button();
             this.PowerStateOffButton = new System.Windows.Forms.Button();
             this.PictureFormatGroupBox = new System.Windows.Forms.GroupBox();
+            this.VolumeUpDown = new System.Windows.Forms.NumericUpDown();
+            this.VolumeGroupBox = new System.Windows.Forms.GroupBox();
+            this.VolumeResetButton = new System.Windows.Forms.Button();
             this.CurrentSourceGroupBox.SuspendLayout();
             this.VideoParametersGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SharpnessUpDown)).BeginInit();
@@ -55,6 +58,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.BrightnessUpDown)).BeginInit();
             this.PowerStateGroupBox.SuspendLayout();
             this.PictureFormatGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.VolumeUpDown)).BeginInit();
+            this.VolumeGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // InputSourceHDMIButton
@@ -247,11 +252,41 @@
             this.PictureFormatGroupBox.TabStop = false;
             this.PictureFormatGroupBox.Text = "Picture Format";
             // 
+            // VolumeUpDown
+            // 
+            this.VolumeUpDown.Location = new System.Drawing.Point(81, 20);
+            this.VolumeUpDown.Name = "VolumeUpDown";
+            this.VolumeUpDown.Size = new System.Drawing.Size(50, 20);
+            this.VolumeUpDown.TabIndex = 8;
+            this.VolumeUpDown.ValueChanged += new System.EventHandler(this.VolumeUpDown_ValueChanged);
+            // 
+            // VolumeGroupBox
+            // 
+            this.VolumeGroupBox.Controls.Add(this.VolumeResetButton);
+            this.VolumeGroupBox.Controls.Add(this.VolumeUpDown);
+            this.VolumeGroupBox.Location = new System.Drawing.Point(127, 171);
+            this.VolumeGroupBox.Name = "VolumeGroupBox";
+            this.VolumeGroupBox.Size = new System.Drawing.Size(137, 46);
+            this.VolumeGroupBox.TabIndex = 9;
+            this.VolumeGroupBox.TabStop = false;
+            this.VolumeGroupBox.Text = "Volume";
+            // 
+            // VolumeResetButton
+            // 
+            this.VolumeResetButton.Location = new System.Drawing.Point(6, 19);
+            this.VolumeResetButton.Name = "VolumeResetButton";
+            this.VolumeResetButton.Size = new System.Drawing.Size(50, 22);
+            this.VolumeResetButton.TabIndex = 9;
+            this.VolumeResetButton.Text = "Reset";
+            this.VolumeResetButton.UseVisualStyleBackColor = true;
+            this.VolumeResetButton.Click += new System.EventHandler(this.VolumeResetButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(663, 262);
+            this.Controls.Add(this.VolumeGroupBox);
             this.Controls.Add(this.PictureFormatGroupBox);
             this.Controls.Add(this.PowerStateGroupBox);
             this.Controls.Add(this.VideoParametersGroupBox);
@@ -268,7 +303,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.BrightnessUpDown)).EndInit();
             this.PowerStateGroupBox.ResumeLayout(false);
             this.PictureFormatGroupBox.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.VolumeUpDown)).EndInit();
+            this.VolumeGroupBox.ResumeLayout(false);
             this.ResumeLayout(false);
+
         }
 
         #endregion
@@ -292,5 +330,8 @@
         private System.Windows.Forms.Button PowerStateOnButton;
         private System.Windows.Forms.Button PowerStateOffButton;
         private System.Windows.Forms.GroupBox PictureFormatGroupBox;
+        private System.Windows.Forms.NumericUpDown VolumeUpDown;
+        private System.Windows.Forms.GroupBox VolumeGroupBox;
+        private System.Windows.Forms.Button VolumeResetButton;
     }
 }

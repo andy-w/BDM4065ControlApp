@@ -30,6 +30,7 @@
         private byte screenContrast = 0;
         private byte screenSharpness = 0;
         private PictureFormat pictureFormat;
+        private byte volume = 0;
 
         public Form1()
         {
@@ -84,6 +85,8 @@
             PictureFormatSet = 0x3A,
             PictureFormatGet = 0x3B,
             PictureInPictureSet = 0x3C,
+            VolumeSet = 0x44,
+            VolumeGet = 0x45,
             PictureInPictureSourceGet = 0x85,
             InputSourceSet = 0xAC,
             CurrentSourceGet = 0xAD,
@@ -269,6 +272,30 @@
             }
         }
 
+        private int GetVolume()
+        {
+            byte[] msgData = new byte[] 
+            { 
+                0x03, 
+                0x01, 
+                (byte)MessageSet.VolumeGet, 
+                0x00
+            };
+
+            byte[] msgReport;
+
+            if (this.SendMessage(msgData, out msgReport) == 0)
+            {
+                this.volume = msgReport[1];
+
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
         private int GetPowerState()
         {
             byte[] msgData = new byte[] 
@@ -410,6 +437,10 @@
             ContrastUpDown.Value = this.screenContrast;
             SharpnessUpDown.Value = this.screenSharpness;
 
+            VolumeGroupBox.Enabled = this.GetVolume() == 0;
+
+            VolumeUpDown.Value =  this.volume;
+
             PictureFormatGroupBox.Enabled = this.GetPictureFormat() == 0;
             
             PictureFormatComboBox.SelectedItem = this.pictureFormat;
@@ -517,6 +548,41 @@
                 }
             }
             throw new Exception("Local IP Address Not Found!");
+        }
+
+        private void VolumeResetButton_Click(object sender, EventArgs e)
+        {
+            SetVolume(50);
+        }
+
+        private int SetVolume(byte volume)
+        {
+            byte[] msgData = new byte[] 
+            { 
+                0x04, 
+                0x01, 
+                (byte)MessageSet.VolumeSet, 
+                volume, 
+                0x00
+            };
+
+            byte[] responseData;
+
+            if (this.SendMessage(msgData, out responseData) == 0)
+            {
+                Thread.Sleep(250);
+
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+        private void VolumeUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            SetVolume((byte)VolumeUpDown.Value);
         }
     }
 }
