@@ -51,6 +51,10 @@
             this.VolumeUpDown = new System.Windows.Forms.NumericUpDown();
             this.VolumeGroupBox = new System.Windows.Forms.GroupBox();
             this.VolumeResetButton = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
+            this.SerialNoTextBox = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.TemperatureTextBox = new System.Windows.Forms.TextBox();
             this.CurrentSourceGroupBox.SuspendLayout();
             this.VideoParametersGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SharpnessUpDown)).BeginInit();
@@ -281,11 +285,49 @@
             this.VolumeResetButton.UseVisualStyleBackColor = true;
             this.VolumeResetButton.Click += new System.EventHandler(this.VolumeResetButton_Click);
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(15, 239);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(50, 13);
+            this.label4.TabIndex = 10;
+            this.label4.Text = "Serial No";
+            // 
+            // SerialNoTextBox
+            // 
+            this.SerialNoTextBox.Location = new System.Drawing.Point(71, 236);
+            this.SerialNoTextBox.Name = "SerialNoTextBox";
+            this.SerialNoTextBox.ReadOnly = true;
+            this.SerialNoTextBox.Size = new System.Drawing.Size(115, 20);
+            this.SerialNoTextBox.TabIndex = 11;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(267, 239);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(83, 13);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "Temperature (C)";
+            // 
+            // TemperatureTextBox
+            // 
+            this.TemperatureTextBox.Location = new System.Drawing.Point(357, 236);
+            this.TemperatureTextBox.Name = "TemperatureTextBox";
+            this.TemperatureTextBox.ReadOnly = true;
+            this.TemperatureTextBox.Size = new System.Drawing.Size(44, 20);
+            this.TemperatureTextBox.TabIndex = 13;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(663, 262);
+            this.Controls.Add(this.TemperatureTextBox);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.SerialNoTextBox);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.VolumeGroupBox);
             this.Controls.Add(this.PictureFormatGroupBox);
             this.Controls.Add(this.PowerStateGroupBox);
@@ -294,6 +336,7 @@
             this.Name = "Form1";
             this.Text = "Form1";
             this.Activated += new System.EventHandler(this.Form1_Activated);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.CurrentSourceGroupBox.ResumeLayout(false);
             this.VideoParametersGroupBox.ResumeLayout(false);
@@ -306,6 +349,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.VolumeUpDown)).EndInit();
             this.VolumeGroupBox.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -333,5 +377,9 @@
         private System.Windows.Forms.NumericUpDown VolumeUpDown;
         private System.Windows.Forms.GroupBox VolumeGroupBox;
         private System.Windows.Forms.Button VolumeResetButton;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox SerialNoTextBox;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox TemperatureTextBox;
     }
 }

@@ -31,6 +31,8 @@
         private byte screenSharpness = 0;
         private PictureFormat pictureFormat;
         private byte volume = 0;
+        private string serialNumber;
+        private byte temperature = 0;
 
         public Form1()
         {
@@ -68,18 +70,27 @@
 
             while (true)
             {
-                Socket socket = this.server.AcceptSocket();
-
-                if (socket.Connected)
+                try
                 {
+                    Socket socket = this.server.AcceptSocket();
+
+                    if (socket.Connected)
+                    {
+                    }
+                }
+                catch (System.Net.Sockets.SocketException)
+                {
+                    return;
                 }
             }
         }
 
         private enum MessageSet : byte
         {
+            SerialCodeGet = 0x15,
             PowerStateSet = 0x18,
             PowerStateGet = 0x19,
+            TemperatureSensorGet = 0x2F,
             VideoParametersSet = 0x32,
             VideoParametersGet = 0x33,
             PictureFormatSet = 0x3A,
@@ -168,7 +179,7 @@
 
                 this.comPort.Write(msg, 0, msg.Length);
 
-                Thread.Sleep(250);
+                Thread.Sleep(200);
 
                 if (this.comPort.BytesToRead > 0)
                 {
@@ -263,6 +274,30 @@
             if (this.SendMessage(msgData, out msgReport) == 0)
             {
                 this.currentSource = (InputSourceNumber)msgReport[2];
+
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+        private int GetSerialNumber()
+        {
+            byte[] msgData = new byte[] 
+            { 
+                0x03, 
+                0x01, 
+                (byte)MessageSet.SerialCodeGet, 
+                0x00
+            };
+
+            byte[] msgReport;
+
+            if (this.SendMessage(msgData, out msgReport) == 0)
+            {
+                this.serialNumber = System.Text.Encoding.UTF8.GetString(msgReport, 1, 14);
 
                 return 0;
             }
@@ -367,9 +402,47 @@
 
             if (this.SendMessage(msgData, out msgReport) == 0)
             {
-                this.pictureFormat = (PictureFormat)(msgReport[1] & 0x03);
+                if (msgReport[0] == (byte)MessageSet.PictureFormatSet)
+                {
+                    this.pictureFormat = (PictureFormat)(msgReport[1] & 0x03);
 
-                return 0;
+                    return 0;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+        private int GetTemperatureSensor()
+        {
+            byte[] msgData = new byte[] 
+            { 
+                0x03, 
+                0x01, 
+                (byte)MessageSet.TemperatureSensorGet, 
+                0x00
+            };
+
+            byte[] msgReport;
+
+            if (this.SendMessage(msgData, out msgReport) == 0)
+            {
+                if (msgReport[0] == (byte)MessageSet.TemperatureSensorGet)
+                {
+                    this.temperature = msgReport[1];
+
+                    return 0;
+                }
+                else
+                {
+                    return 2;
+                }
             }
             else
             {
@@ -439,11 +512,19 @@
 
             VolumeGroupBox.Enabled = this.GetVolume() == 0;
 
-            VolumeUpDown.Value =  this.volume;
+            VolumeUpDown.Value = this.volume;
 
             PictureFormatGroupBox.Enabled = this.GetPictureFormat() == 0;
-            
+
             PictureFormatComboBox.SelectedItem = this.pictureFormat;
+
+            SerialNoTextBox.Enabled = GetSerialNumber() == 0;
+
+            SerialNoTextBox.Text = this.serialNumber;
+
+            TemperatureTextBox.Enabled = GetTemperatureSensor() == 0;
+
+            TemperatureTextBox.Text = this.temperature.ToString();
 
             this.GetPiPSource();
         }
@@ -583,6 +664,13 @@
         private void VolumeUpDown_ValueChanged(object sender, EventArgs e)
         {
             SetVolume((byte)VolumeUpDown.Value);
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            server.Stop();
+
+            serverThread.Join();
         }
     }
 }
