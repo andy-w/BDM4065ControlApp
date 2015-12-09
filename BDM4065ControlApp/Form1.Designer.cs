@@ -336,7 +336,6 @@
             this.Name = "Form1";
             this.Text = "Form1";
             this.Activated += new System.EventHandler(this.Form1_Activated);
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.CurrentSourceGroupBox.ResumeLayout(false);
             this.VideoParametersGroupBox.ResumeLayout(false);

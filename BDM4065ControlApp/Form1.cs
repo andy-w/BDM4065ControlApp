@@ -1,28 +1,17 @@
 ﻿namespace BDM4065ControlApp
 {
     using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Data;
-    using System.Drawing;
     using System.IO.Ports;
-    using System.Linq;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Windows.Forms;
     using System.Net;
     using System.Net.Sockets;
+    using System.Threading;
+    using System.Windows.Forms;
 
     public partial class Form1 : Form
     {
         private byte[] msgHeader = new byte[] { 0xA6, 0x01, 0x00, 0x00, 0x00 };
 
         private SerialPort comPort = new SerialPort("COM1");
-
-        private TcpListener server;
-
-        private Thread serverThread;
 
         private PowerState powerState = PowerState.Off;
         private InputSourceNumber currentSource = InputSourceNumber.VGA;
@@ -38,14 +27,10 @@
         {
             this.InitializeComponent();
 
-            serverThread = new Thread(new ThreadStart(StartServer));
-
-            serverThread.Start();
-
             var timer = new System.Windows.Forms.Timer();
             timer.Tick += new EventHandler(this.RefreshTick);
+
             timer.Interval = 10000; // 10 seconds
-            timer.Start();
 
             foreach (PictureFormat format in Enum.GetValues(typeof(PictureFormat)))
             {
@@ -58,31 +43,8 @@
             this.comPort.StopBits = StopBits.One;
             this.comPort.Handshake = Handshake.None;
             this.comPort.ReadTimeout = 100;
-        }
 
-        private void StartServer()
-        {
-            IPAddress localAddr = GetLocalIPAddress();
-
-            this.server = new TcpListener(localAddr, 11000);
-
-            this.server.Start();
-
-            while (true)
-            {
-                try
-                {
-                    Socket socket = this.server.AcceptSocket();
-
-                    if (socket.Connected)
-                    {
-                    }
-                }
-                catch (System.Net.Sockets.SocketException)
-                {
-                    return;
-                }
-            }
+            timer.Start();
         }
 
         private enum MessageSet : byte
@@ -161,7 +123,7 @@
             byte[] response = new byte[255];
         }
 
-        private int SendMessage(byte[] msgData, out byte[] msgReport)
+        private int SendMessage(byte[] msgData, ref byte[] msgReport)
         {
             msgReport = null;
 
@@ -225,31 +187,31 @@
 
         private void InputSourceHDMIButton_Click(object sender, EventArgs e)
         {
-            this.SetInputSource(InputSourceNumber.HDMI);
+            this.SetInputSource(InputSourceType.HDMI, InputSourceNumber.HDMI);
         }
 
         private void InputSourceDPButton_Click(object sender, EventArgs e)
         {
-            this.SetInputSource(InputSourceNumber.DP);
+            this.SetInputSource(InputSourceType.DisplayPort, InputSourceNumber.DP);
         }
 
-        private int SetInputSource(InputSourceNumber sourceNumber)
+        private int SetInputSource(InputSourceType sourceType, InputSourceNumber sourceNumber)
         {
             byte[] msgData = new byte[] 
             { 
                 0x07, 
                 0x01, 
                 (byte)MessageSet.InputSourceSet, 
-                (byte)InputSourceType.DisplayPort, 
+                (byte)sourceType, 
                 (byte)sourceNumber, 
                 0x01, 
                 0x00, 
                 0x00
             };
 
-            byte[] responseData;
+            byte[] responseData = null;
 
-            if (this.SendMessage(msgData, out responseData) == 0)
+            if (this.SendMessage(msgData, ref responseData) == 0)
             {
                 return 0;
             }
@@ -269,9 +231,9 @@
                 0x00
             };
 
-            byte[] msgReport;
+            byte[] msgReport = null;
 
-            if (this.SendMessage(msgData, out msgReport) == 0)
+            if (this.SendMessage(msgData, ref msgReport) == 0)
             {
                 this.currentSource = (InputSourceNumber)msgReport[2];
 
@@ -293,9 +255,9 @@
                 0x00
             };
 
-            byte[] msgReport;
+            byte[] msgReport = null;
 
-            if (this.SendMessage(msgData, out msgReport) == 0)
+            if (this.SendMessage(msgData, ref msgReport) == 0)
             {
                 this.serialNumber = System.Text.Encoding.UTF8.GetString(msgReport, 1, 14);
 
@@ -317,9 +279,9 @@
                 0x00
             };
 
-            byte[] msgReport;
+            byte[] msgReport = null;
 
-            if (this.SendMessage(msgData, out msgReport) == 0)
+            if (this.SendMessage(msgData, ref msgReport) == 0)
             {
                 this.volume = msgReport[1];
 
@@ -341,9 +303,9 @@
                 0x00
             };
 
-            byte[] msgReport;
+            byte[] msgReport = null;
 
-            if (this.SendMessage(msgData, out msgReport) == 0)
+            if (this.SendMessage(msgData, ref msgReport) == 0)
             {
                 this.powerState = (PowerState)msgReport[1];
 
@@ -365,9 +327,9 @@
                 0x00
             };
 
-            byte[] msgReport;
+            byte[] msgReport = null;
 
-            if (this.SendMessage(msgData, out msgReport) == 0)
+            if (this.SendMessage(msgData, ref msgReport) == 0)
             {
                 if (msgReport[0] == (byte)MessageSet.VideoParametersGet)
                 {
@@ -398,9 +360,9 @@
                 0x00
             };
 
-            byte[] msgReport;
+            byte[] msgReport = null;
 
-            if (this.SendMessage(msgData, out msgReport) == 0)
+            if (this.SendMessage(msgData, ref msgReport) == 0)
             {
                 if (msgReport[0] == (byte)MessageSet.PictureFormatSet)
                 {
@@ -429,9 +391,9 @@
                 0x00
             };
 
-            byte[] msgReport;
+            byte[] msgReport = null;
 
-            if (this.SendMessage(msgData, out msgReport) == 0)
+            if (this.SendMessage(msgData, ref msgReport) == 0)
             {
                 if (msgReport[0] == (byte)MessageSet.TemperatureSensorGet)
                 {
@@ -460,9 +422,9 @@
                 0x00
             };
 
-            byte[] msgReport;
+            byte[] msgReport = null;
 
-            if (this.SendMessage(msgData, out msgReport) == 0)
+            if (this.SendMessage(msgData, ref msgReport) == 0)
             {
                 if (msgReport[0] == (byte)MessageSet.PictureInPictureSourceGet)
                 {
@@ -518,11 +480,11 @@
 
             PictureFormatComboBox.SelectedItem = this.pictureFormat;
 
-            SerialNoTextBox.Enabled = GetSerialNumber() == 0;
+            SerialNoTextBox.Enabled = this.GetSerialNumber() == 0;
 
             SerialNoTextBox.Text = this.serialNumber;
 
-            TemperatureTextBox.Enabled = GetTemperatureSensor() == 0;
+            TemperatureTextBox.Enabled = this.GetTemperatureSensor() == 0;
 
             TemperatureTextBox.Text = this.temperature.ToString();
 
@@ -531,22 +493,22 @@
 
         private void InputSourceVGAButton_Click(object sender, EventArgs e)
         {
-            this.SetInputSource(InputSourceNumber.VGA);
+            this.SetInputSource(InputSourceType.VGA, InputSourceNumber.VGA);
         }
 
         private void InputSourceDVIButton_Click(object sender, EventArgs e)
         {
-            this.SetInputSource(InputSourceNumber.DVI);
+            this.SetInputSource(InputSourceType.DVI, InputSourceNumber.DVI);
         }
 
         private void InputSourceHDMI2Button_Click(object sender, EventArgs e)
         {
-            this.SetInputSource(InputSourceNumber.MHLHDMI2);
+            this.SetInputSource(InputSourceType.HDMI, InputSourceNumber.MHLHDMI2);
         }
 
         private void InputSourcemDPButton_Click(object sender, EventArgs e)
         {
-            this.SetInputSource(InputSourceNumber.miniDP);
+            this.SetInputSource(InputSourceType.DisplayPort, InputSourceNumber.miniDP);
         }
 
         private void PowerStateOffButton_Click(object sender, EventArgs e)
@@ -574,9 +536,9 @@
                 0x00
             };
 
-            byte[] responseData;
+            byte[] responseData = null;
 
-            if (this.SendMessage(msgData, out responseData) == 0)
+            if (this.SendMessage(msgData, ref responseData) == 0)
             {
                 Thread.Sleep(250);
 
@@ -599,9 +561,9 @@
                 0x00
             };
 
-            byte[] responseData;
+            byte[] responseData = null;
 
-            if (this.SendMessage(msgData, out responseData) == 0)
+            if (this.SendMessage(msgData, ref responseData) == 0)
             {
                 Thread.Sleep(250);
 
@@ -618,22 +580,9 @@
             this.SetPictureFormat((PictureFormat)this.PictureFormatComboBox.SelectedItem);
         }
 
-        private static IPAddress GetLocalIPAddress()
-        {
-            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (IPAddress ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip;
-                }
-            }
-            throw new Exception("Local IP Address Not Found!");
-        }
-
         private void VolumeResetButton_Click(object sender, EventArgs e)
         {
-            SetVolume(50);
+            this.SetVolume(50);
         }
 
         private int SetVolume(byte volume)
@@ -647,9 +596,9 @@
                 0x00
             };
 
-            byte[] responseData;
+            byte[] responseData = null;
 
-            if (this.SendMessage(msgData, out responseData) == 0)
+            if (this.SendMessage(msgData, ref responseData) == 0)
             {
                 Thread.Sleep(250);
 
@@ -663,14 +612,7 @@
 
         private void VolumeUpDown_ValueChanged(object sender, EventArgs e)
         {
-            SetVolume((byte)VolumeUpDown.Value);
-        }
-
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            server.Stop();
-
-            serverThread.Join();
+            this.SetVolume((byte)VolumeUpDown.Value);
         }
     }
 }
